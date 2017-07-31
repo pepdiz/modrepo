@@ -7,8 +7,10 @@
 # /etc/$PRGNAME/$PRGNAME.conf	- configuration file
 # /etc/$PRGNAME/drivers/*	- repository sync scripts
 # /etc/$PRGNAME/creators/*	- repository upload scripts
-# /etc/$PRGNAME/repos/*		- repository descriptor files
 # /tmp/$PRGNAME/*		- repositories default dir
+# en la version lite no hay directorio de repos, son entradas en $PRGNAME.conf
+# del tipo:  repo name url dir
+# /etc/$PRGNAME/repos/*		- repository descriptor files
 
 
 VERSION=0.1
@@ -98,6 +100,19 @@ create () {
   [ -d "/tmp/$PRGNAME/$DIR" -a -w "/tmp/$PRGNAME/$DIR" ] && DIR=/tmp/$PRGNAME/$DIR || DIR=$(realpath $DIR)
 
   httpup-repgen $DIR
+}
+
+sources () {
+
+  awk -F\  '/^ *repo/{print "$1";}'
+
+#  for r in /etc/$PRGNAME/repos ; do
+#    echo $r
+#  done
+}
+
+list () {
+  
 }
 
 [ $@ -lt 1 ] && errxit "syntax: $(basename $0) command params"

@@ -1,0 +1,5 @@
+# /tmp/modrepo/<collection>    # <collection>'s modules 
+
+MOD_DIR=/tmp/modrepo/<collection>
+URL=https://raw.githubusercontent.com/pepdiz/porteus-modules/master/mods
+

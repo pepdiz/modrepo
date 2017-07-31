@@ -1,0 +1,123 @@
+#!/bin/bash
+# author: Pep Diz
+# modrepo - create, add modules repositories
+
+# files:
+#
+# /etc/$PRGNAME/$PRGNAME.conf	- configuration file
+# /etc/$PRGNAME/drivers/*	- repository sync scripts
+# /etc/$PRGNAME/creators/*	- repository upload scripts
+# /etc/$PRGNAME/repos/*		- repository descriptor files
+# /tmp/$PRGNAME/*		- repositories default dir
+
+
+VERSION=0.1
+PRGNAME=$(basename $0)
+CFGFILE=/etc/$PRGNAME/$PRGNAME.conf
+
+syntax () {
+  echo "$PRGNAME $VERSION"
+  echo "syntax: $PRGNAME command params"
+  exit
+}
+
+errxit () {
+  echo $1 && exit ${2:--1}
+}
+
+check_root () {
+  [ $(id -u) -eq 0 ] || errxit "Only root allowed to $CMD"
+}
+
+add () {
+# adds a repository to the list
+#   from a repo descriptor file, (format: <repository name>.<driver>), or
+#   from a repo name, url and target-dir
+  # $1 repository descriptor file or repository name 
+  # $2 repository driver if $1 is repository name
+  # $3 repository url if $1 is repository name
+  # $4 target-dir if $1 is repository name
+  local NAME
+  local DRV
+  local URL
+  local TGTDIR
+  local RDES
+
+  check_root
+
+  [ -z "$1" ] && errxit "Bad arguments: repo name or descriptor file expected" -2
+  NAME=$1
+  shift
+  RDES=$(realpath $NAME)
+  if [ -f $RDES ] ; then
+    NAME=$(basename $RDES)
+    NAME=${NAME%.*}
+    DRV=${RDES##*.}
+    DRV=$(echo $DRV|tr [:upper:] [:lower:])
+    [ -x /etc/$PRGNAME/drivers/$DRV ] || echo "warning: driver $DRV not found or not executable"
+    echo "adding repo $RDES"
+    cp $RDES /etc/$PRGNAME/repos/
+  else
+    local T=$NAME
+    # sanitize name
+    NAME=$(echo $NAME|tr [:punct:] _)
+    [ $T != $NAME ] && echo "warning: name sanitized to $NAME"
+    # truncate name to first 15 chars
+    #NAME=${NAME:0:15}
+    #[ $T != $NAME ] && echo "warning: name truncated to $NAME"
+    DRV=${1:-httpup}
+    DRV=$(echo $DRV|tr [:upper:] [:lower:])
+    shift
+    [ -x /etc/$PRGNAME/drivers/$DRV ] || echo "warning: driver $DRV not found or not executable"
+    URL=$1
+    shift
+    #TODO: check url with curl or wget (sometimes they get stuck)
+    [ -z "$URL" ] && echo "Bad arguments: url expected"
+    TGTDIR=${1:-/tmp/$PRGNAME/$NAME}
+    [ -d $TGTDIR ] || echo "warning: target dir not found"
+    [ -d $TGTDIR -a -w $TGTDIR ] || echo "warning: target dir not writable for $(whoami)"
+    # esto en teoria no es necesario porque somos root
+  [ -d /etc/$PRGNAME/repos/ -a -w /etc/$PRGNAME/repos/ ] || errxit "Cannot write to /etc/$PRGNAME/repos/"
+    echo "adding repo $NAME in $TGTDIR pointing to $URL"  
+    echo "# ${NAME}'s module collection" > /etc/$PRGNAME/repos/$NAME.$DRV
+    echo "#" >> /etc/$PRGNAME/repos/$NAME.$DRV
+    echo "MOD_DIR=$TGTDIR" >> /etc/$PRGNAME/repos/$NAME.$DRV
+    echo "URL=$URL" >> /etc/$PRGNAME/repos/$NAME.$DRV
+  fi
+
+  # add repo to active repositories
+  # (think better becouse this add at the end, maybe use an array)
+  [ -f "$CFGFILE" -a -w "$CFGFILE" ] && echo "repo $NAME" >> $CFGFILE  || errxit "Config file $CFGFILE not found or not writable"
+}
+
+create () {
+  # create a repository in dir
+  # $1 repository dir
+  local DIR=${1:-.}
+ 
+  [ -d "/tmp/$PRGNAME/$DIR" -a -w "/tmp/$PRGNAME/$DIR" ] && DIR=/tmp/$PRGNAME/$DIR || DIR=$(realpath $DIR)
+
+  httpup-repgen $DIR
+}
+
+[ $@ -lt 1 ] && errxit "syntax: $(basename $0) command params"
+
+CMD=$(echo $1 | tr [:upper:] [:lower:])
+
+shift
+
+case $CMD in
+
+  add|a) 	add "$@"
+		;;	
+  create|c) 	create "$@"
+  		;;
+  list|l) 	list "$@"  # list modules in repository (remote)
+  		;;
+  update|u) 	update "$@" # download modules to local repository
+  		;;
+  install|i) 	install "$@" # install modules in porteus (modules or optional)
+  		;;
+esac
+
+

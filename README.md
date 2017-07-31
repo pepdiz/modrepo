@@ -49,17 +49,19 @@ Users only interested in repositories as a source of modules have to add the wan
 
 | Action  | Parameters	 	            | Description                                             | 
 | --------|---------------------------|---------------------------------------------------------|
-| add     | name url [dir]			      | Adds repo to source list                                | 
 | upload	| name / dir			          | Uploads all modules in repo to public site              | 
+| serve 	| name / dir			          | Serves repository content by HTTP (as a web server)     | 
+| add     | name url [dir]			      | Adds repo to source list                                | 
 | list	  | all / name / regex        | Lists modules of repos                                  | 
 | search	| [name/regex:]module/regex | Search for modules in repositories                      | 
 | sources |					                  | List active repositories                                | 
 | get	    | [name/regex:]module/regex |	Downloads selected modules                              | 
 | install | [name:]module [opt]	      |	Install modules in porteus system (optional or modules) | 
 
+First two actions are intented for cookers while all the rest are useful for all users.
 
 ## Tools
 
 There are certain tools included in repomod that can be used standalone:
 
-httpup-repgen	generates a REPO file for a directory
+ httpup-repgen	| generates a REPO file for a directory

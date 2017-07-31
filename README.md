@@ -1,5 +1,5 @@
 # modrepo
-tools for managing and deploy porteus modules
+Tools for managing and deploy porteus modules
 
 This lite version deals basically with publishing a repository of modules (.xzm files) and using several repositories to search for modules and install them
 
@@ -64,4 +64,4 @@ First two actions are intented for cookers while all the rest are useful for all
 
 There are certain tools included in repomod that can be used standalone:
 
- httpup-repgen	| generates a REPO file for a directory
+ * httpup-repgen, generates a REPO file for a directory

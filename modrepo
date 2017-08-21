@@ -17,6 +17,12 @@ VERSION=0.1
 PRGNAME=$(basename $0)
 CFGFILE=/etc/$PRGNAME/$PRGNAME.conf
 
+# read config (TODO: securize reading config)
+. $CFGFILE
+
+# default config values
+[ -z "${REPOTMP}" } && REPOTMP=/tmp/$PRGNAME
+
 syntax () {
   echo "$PRGNAME $VERSION"
   echo "syntax: $PRGNAME command params"
@@ -102,7 +108,7 @@ create () {
   httpup-repgen $DIR
 }
 
-sources () {
+repolist () {
 
   awk -F\  '/^ *repo/{print "$1";}'
 
@@ -115,6 +121,9 @@ list () {
   
 }
 
+install () {
+  [ -f $REPOTMP/$1
+
 [ $@ -lt 1 ] && errxit "syntax: $(basename $0) command params"
 
 CMD=$(echo $1 | tr [:upper:] [:lower:])
@@ -125,14 +134,22 @@ case $CMD in
 
   add|a) 	add "$@"
 		;;	
-  create|c) 	create "$@"
-  		;;
-  list|l) 	list "$@"  # list modules in repository (remote)
-  		;;
-  update|u) 	update "$@" # download modules to local repository
+  get|g) 	update "$@" # download modules to local repository
   		;;
   install|i) 	install "$@" # install modules in porteus (modules or optional)
   		;;
+  list|l) 	list "$@"  # list modules in repository (remote)
+  		;;
+  repos|r) 	repolist "$@"
+  		;;
+  search|s) 	search "$@"
+  		;;
+  upload|u) 	create "$@"
+  		;;
+  web|w) 	serve "$@"
+  		;;
+  *)		syntax
+	  	;;
 esac
 
 

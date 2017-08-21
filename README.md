@@ -45,20 +45,45 @@ Users only interested in repositories as a source of modules have to add the wan
 
 ## Actions
 
-- NOTA: dos acciones init y upload o solo una, upload, que haga ambas cosas?
+- NOTA: dos acciones init y upload o solo una, upload, que haga ambas cosas? -> solo una
 
-| Action  | Parameters	 	            | Description                                             | 
+| Action  | Parameters	 	      | Description                                             | 
 | --------|---------------------------|---------------------------------------------------------|
-| upload	| name / dir			          | Uploads all modules in repo to public site              | 
-| serve 	| name / dir			          | Serves repository content by HTTP (as a web server)     | 
-| add     | name url [dir]			      | Adds repo to source list                                | 
+| upload  | name / dir		      | Uploads all modules in repo to public site              | 
+| serve   | name / dir	              | Serves repository content by HTTP (as a web server)     | 
+| add     | name url [dir]	      | Adds repo to source list                                | 
 | list	  | all / name / regex        | Lists modules of repos                                  | 
-| search	| [name/regex:]module/regex | Search for modules in repositories                      | 
-| sources |					                  | List active repositories                                | 
-| get	    | [name/regex:]module/regex |	Downloads selected modules                              | 
+| search  | [name/regex:]module/regex | Search for modules in repositories                      | 
+| sources |		              | List active repositories                                | 
+| get	  | [name/regex:]module/regex |	Downloads selected modules                              | 
 | install | [name:]module [opt]	      |	Install modules in porteus system (optional or modules) | 
 
 First two actions are intented for cookers while all the rest are useful for all users.
+
+### action semantics
+
+add     - adds repo to modrepo.conf, if dir is not provided defaults to current dir
+get     - download modules from repository, same pattern scheme than search option
+          All modules are downloaded to modrepo temp directory without activating
+install - Installs a module in porteus system (modules dir by default) 
+          module is a literal module name that can be prefixed with a repo name to search only inside that repo
+list    - list modules in repos, several search options available:
+           * all   - list all modules in all repos
+           * name  - list all modules in repo name 
+           * regex - list all modules in repos matching regex
+repos   - list repositories currently in use
+search  - search for modules in repos, search pattern is made of two parts <repo>:<mod> 
+          <repo> options:
+           * name - search in repository 'name' (literal match)
+           * regex - search in repos matching regex
+          <mod> options:
+           * module - search for module name (literal name search)
+           * regex  - search for modules matching regex
+upload  - uploads all modules to remote public repository repo-name (it should be listed in modrepo.conf) 
+          REPO file is generated every time a repo is uploaded
+web     - makes local repository public available by serving it using http
+          The url wil be localhost:8888/repo-name and will listen to all address by default
+
 
 ## Tools
 
